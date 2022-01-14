@@ -1,4 +1,4 @@
-import { createServer, Factory, Model, Response } from 'miragejs'
+import { createServer, Factory, Model, Response, ActiveModelSerializer } from 'miragejs'
 
 type User = {  // modelo do meu bd
   name: string;
@@ -8,6 +8,10 @@ type User = {  // modelo do meu bd
 
 export function makeServer() {
   const server = createServer({  // criando meu servidor
+    serializers: {
+      application: ActiveModelSerializer,
+    },
+
     models: {
       user: Model.extend<Partial<User>>({}) // modelo do meu banco de dados
     },
@@ -48,6 +52,7 @@ export function makeServer() {
           "x-total-count": String(total),
         }, { users })
       });
+      this.get('/users/:id')
       this.post('/users')
 
       this.namespace = '' // tiro o api da rota para não atrapalhar as rotas o next

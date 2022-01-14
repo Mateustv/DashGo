@@ -1,16 +1,29 @@
-import { Spinner, Box, Button, Checkbox, Flex, Heading, Icon, Table, Tbody, Td, Th, Thead, Tr, Text } from "@chakra-ui/react";
+import { Spinner, Link as LinkChakra, Box, Button, Checkbox, Flex, Heading, Icon, Table, Tbody, Td, Th, Thead, Tr, Text } from "@chakra-ui/react";
 import Link from "next/link";
 import { useState } from "react";
 import { RiAddLine, RiPencilLine } from "react-icons/ri";
 import Header from "../../components/Header";
 import { Pagination } from "../../components/Pagination";
 import { Sidebar } from "../../components/Sidebar";
+import { api } from "../../services/api";
 import { useUsers } from "../../services/hook/useUsers";
+import { queryClient } from "../../services/queryClient";
+
+
+
 
 export default function UserList() {
   const [page, setPage] = useState(1)
   const { isLoading, error, data, isFetching } = useUsers(page)
 
+  async function handlePrefetchUser(userId: number) {
+    await queryClient.prefetchQuery(['user', userId], async () => {
+      const response = await api.get(`user/${userId}`)
+
+      return response.data
+    })
+
+  }
   return (
     <Box>
       <Header />
@@ -71,7 +84,11 @@ export default function UserList() {
                               </Td>
                               <Td>
                                 <Box>
-                                  <Text fontWeight='bold'>{user.name}</Text>
+                                  <LinkChakra
+                                    color='purple.400'
+                                    onMouseEnter={() => handlePrefetchUser(Number(user.id))}>
+                                    <Text fontWeight='bold'>{user.name}</Text>
+                                  </LinkChakra>
                                   <Text fontSize='sm' color='gray.300'>{user.email}</Text>
                                 </Box>
                               </Td>
@@ -81,7 +98,8 @@ export default function UserList() {
                                   as='a'
                                   size='sm'
                                   fontSize='sm'
-                                  colorScheme='purple'
+                                  color='gray.800'
+                                  colorScheme='gray'
                                   leftIcon={<Icon as={RiPencilLine} fontSize='16' />} >
                                   Editar
                                 </Button>
